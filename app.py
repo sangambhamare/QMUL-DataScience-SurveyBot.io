@@ -38,14 +38,14 @@ def save_feedback(module, responses):
     else:
         df.to_csv(FEEDBACK_FILE, index=False)  # Create a new file with headers
 
-    # Automate Git push
+    # Automate Git push using HTTPS
     try:
         subprocess.run(["git", "config", "--global", "user.email", "bhamaresangam@gmail.com"], check=True)
         subprocess.run(["git", "config", "--global", "user.name", "sangambhamare"], check=True)
         
         subprocess.run(["git", "add", FEEDBACK_FILE], check=True)
         subprocess.run(["git", "commit", "-m", "Update survey feedback CSV"], check=True)
-        subprocess.run(["git", "push"], check=True)
+        subprocess.run(["git", "push", "https://github.com/sangambhamare/QMUL-DataScience-SurveyBot.io.git", "main"], check=True)
     except Exception as e:
         print(f"Git push failed: {e}")
 
