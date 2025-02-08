@@ -45,7 +45,7 @@ def save_feedback(module, responses):
         
         subprocess.run(["git", "add", FEEDBACK_FILE], check=True)
         subprocess.run(["git", "commit", "-m", "Update survey feedback CSV"], check=True)
-        subprocess.run(["git", "push", "https://github.com/sangambhamare/QMUL-DataScience-SurveyBot.io.git", "master"], check=True)
+        subprocess.run(["git", "push", "https://github.com/sangambhamare/QMUL-DataScience-SurveyBot.io", "master"], check=True)
     except Exception as e:
         print(f"Git push failed: {e}")
 
