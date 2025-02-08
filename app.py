@@ -1,11 +1,7 @@
 import streamlit as st
-import requests
 import json
 import pandas as pd
 import os
-
-# vLLM API Endpoint
-VLLM_API_URL = "http://localhost:8000/v1/chat/completions"
 
 # Define survey questions
 survey_questions = [
@@ -61,23 +57,4 @@ for question in survey_questions:
 # Submit button
 if st.button("Submit Feedback"):
     save_feedback(target_module, responses)  # Store feedback in CSV
-    
-    # Format the input for vLLM model
-    chat_input = {
-        "model": "deepseek-ai/DeepSeek-R1",
-        "messages": [
-            {"role": "user", "content": f"Here is feedback for {target_module}: {json.dumps(responses)}"}
-        ]
-    }
-    
-    # Send request to vLLM API
-    try:
-        response = requests.post(VLLM_API_URL, headers={"Content-Type": "application/json"}, data=json.dumps(chat_input))
-        if response.status_code == 200:
-            output = response.json()["choices"][0]["message"]["content"]
-            st.success("Thank you for your feedback! Your response has been recorded.")
-            st.write("AI Response:", output)
-        else:
-            st.error("Error in processing your response. Please try again later.")
-    except Exception as e:
-        st.error(f"Error connecting to AI model: {e}")
+    st.success("Thank you for your feedback! Your response has been recorded.")
