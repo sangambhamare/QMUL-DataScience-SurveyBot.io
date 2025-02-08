@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import os
 import subprocess
+import requests
 
 # Define survey questions
 survey_questions = [
@@ -28,6 +29,22 @@ modules = [
 # File path for storing responses
 FEEDBACK_FILE = "survey_feedback.csv"
 
+# GitHub Raw URL for token file
+TOKEN_URL = "https://raw.githubusercontent.com/sangambhamare/QMUL-DataScience-SurveyBot.io/master/token.txt"
+
+# Function to fetch the GitHub token from a private file
+def get_github_token():
+    try:
+        response = requests.get(TOKEN_URL)
+        if response.status_code == 200:
+            return response.text.strip()
+        else:
+            print("Error: Unable to fetch token from GitHub.")
+            return None
+    except Exception as e:
+        print(f"Failed to retrieve GitHub token: {e}")
+        return None
+
 # Function to save feedback to CSV and push to GitHub
 def save_feedback(module, responses):
     df = pd.DataFrame([responses])  # Convert responses to DataFrame
@@ -38,14 +55,21 @@ def save_feedback(module, responses):
     else:
         df.to_csv(FEEDBACK_FILE, index=False)  # Create a new file with headers
 
-    # Automate Git push using HTTPS
+    # Fetch GitHub token from file
+    GITHUB_TOKEN = get_github_token()
+    if not GITHUB_TOKEN:
+        print("Error: GitHub token not found.")
+        return
+    
+    GITHUB_REPO = f"https://sangambhamare:{GITHUB_TOKEN}@github.com/sangambhamare/QMUL-DataScience-SurveyBot.io.git"
+    
     try:
         subprocess.run(["git", "config", "--global", "user.email", "bhamaresangam@gmail.com"], check=True)
         subprocess.run(["git", "config", "--global", "user.name", "sangambhamare"], check=True)
         
         subprocess.run(["git", "add", FEEDBACK_FILE], check=True)
         subprocess.run(["git", "commit", "-m", "Update survey feedback CSV"], check=True)
-        subprocess.run(["git", "push", "https://github.com/sangambhamare/QMUL-DataScience-SurveyBot.io.git", "master"], check=True)
+        subprocess.run(["git", "push", GITHUB_REPO, "master"], check=True)
     except Exception as e:
         print(f"Git push failed: {e}")
 
