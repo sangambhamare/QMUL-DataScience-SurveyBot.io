@@ -40,6 +40,9 @@ def save_feedback(module, responses):
 
     # Automate Git push
     try:
+        subprocess.run(["git", "config", "--global", "user.email", "bhamaresangam@gmail.com"], check=True)
+        subprocess.run(["git", "config", "--global", "user.name", "sangambhamare"], check=True)
+        
         subprocess.run(["git", "add", FEEDBACK_FILE], check=True)
         subprocess.run(["git", "commit", "-m", "Update survey feedback CSV"], check=True)
         subprocess.run(["git", "push"], check=True)
