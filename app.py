@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import pandas as pd
 import os
+import subprocess
 
 # Define survey questions
 survey_questions = [
@@ -27,7 +28,7 @@ modules = [
 # File path for storing responses
 FEEDBACK_FILE = "survey_feedback.csv"
 
-# Function to save feedback to CSV
+# Function to save feedback to CSV and push to GitHub
 def save_feedback(module, responses):
     df = pd.DataFrame([responses])  # Convert responses to DataFrame
     df.insert(0, "Module", module)  # Add module as the first column
@@ -36,6 +37,14 @@ def save_feedback(module, responses):
         df.to_csv(FEEDBACK_FILE, mode='a', header=False, index=False)  # Append without header
     else:
         df.to_csv(FEEDBACK_FILE, index=False)  # Create a new file with headers
+
+    # Automate Git push
+    try:
+        subprocess.run(["git", "add", FEEDBACK_FILE], check=True)
+        subprocess.run(["git", "commit", "-m", "Update survey feedback CSV"], check=True)
+        subprocess.run(["git", "push"], check=True)
+    except Exception as e:
+        print(f"Git push failed: {e}")
 
 # Streamlit UI
 st.title("Master's Student Survey Chatbot")
@@ -56,5 +65,5 @@ for question in survey_questions:
 
 # Submit button
 if st.button("Submit Feedback"):
-    save_feedback(target_module, responses)  # Store feedback in CSV
-    st.success("Thank you for your feedback! Your response has been recorded.")
+    save_feedback(target_module, responses)  # Store feedback in CSV and push to GitHub
+    st.success("Thank you for your feedback! Your response has been recorded and uploaded.")
