@@ -61,15 +61,19 @@ def save_feedback(module, responses):
         print("Error: GitHub token not found.")
         return
     
-    GITHUB_REPO = f"https://sangambhamare:{GITHUB_TOKEN}@github.com/sangambhamare/QMUL-DataScience-SurveyBot.io.git"
+    GITHUB_REPO = "https://github.com/sangambhamare/QMUL-DataScience-SurveyBot.io.git"
     
     try:
         subprocess.run(["git", "config", "--global", "user.email", "bhamaresangam@gmail.com"], check=True)
         subprocess.run(["git", "config", "--global", "user.name", "sangambhamare"], check=True)
         
+        # Store credentials for Git
+        subprocess.run(["git", "credential", "reject", "https://github.com"], check=True)  # Clear old credentials
+        subprocess.run(["git", "credential", "approve"], input=f"url=https://sangambhamare:{GITHUB_TOKEN}@github.com", text=True)
+
         subprocess.run(["git", "add", FEEDBACK_FILE], check=True)
         subprocess.run(["git", "commit", "-m", "Update survey feedback CSV"], check=True)
-        subprocess.run(["git", "push", GITHUB_REPO, "master"], check=True)
+        subprocess.run(["git", "push", "origin", "master"], check=True)  # Push using Git's credential manager
     except Exception as e:
         print(f"Git push failed: {e}")
 
