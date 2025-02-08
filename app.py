@@ -67,13 +67,12 @@ def save_feedback(module, responses):
         subprocess.run(["git", "config", "--global", "user.email", "bhamaresangam@gmail.com"], check=True)
         subprocess.run(["git", "config", "--global", "user.name", "sangambhamare"], check=True)
         
-        # Store credentials for Git
-        subprocess.run(["git", "credential", "reject", "https://github.com"], check=True)  # Clear old credentials
-        subprocess.run(["git", "credential", "approve"], input=f"url=https://sangambhamare:{GITHUB_TOKEN}@github.com", text=True)
-
+        # Authenticate with GitHub token
+        subprocess.run(["git", "remote", "set-url", "origin", f"https://sangambhamare:{GITHUB_TOKEN}@github.com/sangambhamare/QMUL-DataScience-SurveyBot.io.git"], check=True)
+        
         subprocess.run(["git", "add", FEEDBACK_FILE], check=True)
         subprocess.run(["git", "commit", "-m", "Update survey feedback CSV"], check=True)
-        subprocess.run(["git", "push", "origin", "master"], check=True)  # Push using Git's credential manager
+        subprocess.run(["git", "push", "origin", "master"], check=True)  # Push using Git credentials
     except Exception as e:
         print(f"Git push failed: {e}")
 
