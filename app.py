@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 import json
+import pandas as pd
+import os
 
 # vLLM API Endpoint
 VLLM_API_URL = "http://localhost:8000/v1/chat/completions"
@@ -26,6 +28,19 @@ modules = [
     "Risk and Decision-Making for Data Science and AI"
 ]
 
+# File path for storing responses
+FEEDBACK_FILE = "survey_feedback.csv"
+
+# Function to save feedback to CSV
+def save_feedback(module, responses):
+    df = pd.DataFrame([responses])  # Convert responses to DataFrame
+    df.insert(0, "Module", module)  # Add module as the first column
+    
+    if os.path.exists(FEEDBACK_FILE):
+        df.to_csv(FEEDBACK_FILE, mode='a', header=False, index=False)  # Append without header
+    else:
+        df.to_csv(FEEDBACK_FILE, index=False)  # Create a new file with headers
+
 # Streamlit UI
 st.title("Master's Student Survey Chatbot")
 st.write("This chatbot collects feedback on your modules at QMUL. Please answer the questions honestly.")
@@ -45,6 +60,8 @@ for question in survey_questions:
 
 # Submit button
 if st.button("Submit Feedback"):
+    save_feedback(target_module, responses)  # Store feedback in CSV
+    
     # Format the input for vLLM model
     chat_input = {
         "model": "deepseek-ai/DeepSeek-R1",
@@ -58,7 +75,7 @@ if st.button("Submit Feedback"):
         response = requests.post(VLLM_API_URL, headers={"Content-Type": "application/json"}, data=json.dumps(chat_input))
         if response.status_code == 200:
             output = response.json()["choices"][0]["message"]["content"]
-            st.success("Thank you for your feedback!")
+            st.success("Thank you for your feedback! Your response has been recorded.")
             st.write("AI Response:", output)
         else:
             st.error("Error in processing your response. Please try again later.")
